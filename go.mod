@@ -1,4 +1,4 @@
-module github/weirwei/golib
+module github.com/weirwei/golib
 
 go 1.16
 
