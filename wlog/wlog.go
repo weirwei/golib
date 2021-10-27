@@ -16,84 +16,84 @@ func Debug(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Debug(args)
+	weirLog(ctx).Debug(args...)
 }
 
 func Debugf(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Debugf(format, args)
+	weirLog(ctx).Debugf(format, args...)
 }
 
 func Info(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Info(args)
+	weirLog(ctx).Info(args...)
 }
 
 func Infof(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Infof(format, args)
+	weirLog(ctx).Infof(format, args...)
 }
 
 func Warn(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Warn(args)
+	weirLog(ctx).Warn(args...)
 }
 
 func Warnf(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Warnf(format, args)
+	weirLog(ctx).Warnf(format, args...)
 }
 
 func Error(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Error(args)
+	weirLog(ctx).Error(args...)
 }
 
 func Errorf(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Errorf(format, args)
+	weirLog(ctx).Errorf(format, args...)
 }
 
 func Panic(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Panic(args)
+	weirLog(ctx).Panic(args...)
 }
 
 func Panicf(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Panicf(format, args)
+	weirLog(ctx).Panicf(format, args...)
 }
 
 func Fatal(ctx *gin.Context, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Fatal(args)
+	weirLog(ctx).Fatal(args...)
 }
 
 func Fatalf(ctx *gin.Context, format string, args ...interface{}) {
 	if !check(ctx) {
 		return
 	}
-	weirLog(ctx).Fatalf(format, args)
+	weirLog(ctx).Fatalf(format, args...)
 }
 
 func check(ctx *gin.Context) bool {
