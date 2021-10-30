@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func weirLog(ctx *gin.Context) *logrus.Logger {
+func weirLog(ctx *gin.Context) *logrus.Entry {
 	if ctx == nil {
 		return LogrusLogger
 	}
@@ -97,8 +97,5 @@ func Fatalf(ctx *gin.Context, format string, args ...interface{}) {
 }
 
 func check(ctx *gin.Context) bool {
-	if ctx == nil {
-		return false
-	}
-	return true
+	return ctx != nil
 }

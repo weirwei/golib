@@ -10,9 +10,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type Fields = logrus.Fields
+
 var (
-	LogrusLogger *logrus.Logger
+	LogrusLogger *logrus.Entry
 )
+
+func WithFields(fields Fields) {
+	LogrusLogger = LogrusLogger.WithFields(fields)
+}
+
+func WithField(key string, value interface{}) {
+	LogrusLogger = LogrusLogger.WithField(key, value)
+}
 
 func newLogrus() *logrus.Logger {
 	now := time.Now()
@@ -23,15 +33,14 @@ func newLogrus() *logrus.Logger {
 	if err := os.MkdirAll(logFilePath, 0777); err != nil {
 		fmt.Println(err.Error())
 	}
-	logFileName := now.Format("2006-01-02") + ".log"
-	//日志文件
+	logFileName := now.Format("20060102") + ".log"
+	// 写入日志文件
 	fileName := path.Join(logFilePath, logFileName)
 	if _, err := os.Stat(fileName); err != nil {
 		if _, err := os.Create(fileName); err != nil {
 			fmt.Println(err.Error())
 		}
 	}
-	//写入文件
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		fmt.Println("err", err)
@@ -39,15 +48,14 @@ func newLogrus() *logrus.Logger {
 	writers := []io.Writer{
 		src,
 		os.Stdout}
-	//同时写文件和控制台打印
+	// 同时写文件和控制台打印
 	fileAndStdoutWriter := io.MultiWriter(writers...)
-	//实例化
+
 	logger := logrus.New()
 
-	//设置输出
 	logger.SetOutput(fileAndStdoutWriter)
 
-	//设置日志级别
+	// 设置日志级别
 	switch config.Level {
 	case LevelPanic:
 		logger.SetLevel(logrus.PanicLevel)

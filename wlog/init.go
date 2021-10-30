@@ -36,7 +36,7 @@ func InitLog(c *LogConfig) {
 		config.Path = c.Path
 		config.Formatter = getFormatter(c.Formatter)
 	}
-	LogrusLogger = newLogrus()
+	LogrusLogger = logrus.NewEntry(newLogrus())
 }
 
 func getLevel(level string) Level {
