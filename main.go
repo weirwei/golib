@@ -2,19 +2,23 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/weirwei/golib/middleware"
 	"github.com/weirwei/golib/wlog"
 )
 
 func main() {
 	router := gin.Default()
-	wlog.InitLog(&wlog.LogConfig{
-		Level: "info",
-		Path:  "./logs",
+	wlog.InitLog(wlog.LogConfig{
+		Level:   "info",
+		Stdout:  true,
+		FileOut: true,
+		Path:    "./logs",
 	})
-	router.Use(wlog.LoggerToFile())
+	router.Use(middleware.AccessLog())
 	router.GET("/", func(context *gin.Context) {
+		m := context.Query("msg")
 		//Info级别的日志
-		wlog.Infof(context, "get a info %d", 1)
+		wlog.Infof(context, "get a info %s", m)
 		//Error级别的日志
 		wlog.Error(context, "get a error")
 		//Warn级别的日志
@@ -22,5 +26,5 @@ func main() {
 		//Debug级别的日志
 		wlog.Debug(context, "get a debug")
 	})
-	router.Run()
+	_ = router.Run()
 }

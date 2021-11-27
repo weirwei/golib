@@ -10,23 +10,46 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Fields = logrus.Fields
+type (
+	// Fields 日志自定义kv
+	Fields = logrus.Fields
+
+	// Hook 钩子接口
+	Hook = logrus.Hook
+)
 
 var (
 	LogrusLogger *logrus.Entry
 )
 
-func WithFields(fields Fields) {
+// AddFields 添加一组kv
+func AddFields(fields Fields) {
 	LogrusLogger = LogrusLogger.WithFields(fields)
 }
 
-func WithField(key string, value interface{}) {
+// InitFields 返回一个新的Entry，并设置一个组的kv
+func InitFields(fields Fields) *logrus.Entry {
+	return LogrusLogger.WithFields(fields)
+}
+
+// AddField 添加kv
+func AddField(key string, value interface{}) {
 	LogrusLogger = LogrusLogger.WithField(key, value)
+}
+
+// InitField 返回一个新的Entry，并设置一个新的kv
+func InitField(key string, value interface{}) *logrus.Entry {
+	return LogrusLogger.WithField(key, value)
+}
+
+// AddHook 添加钩子
+func AddHook(hook Hook) {
+	LogrusLogger.Logger.Hooks.Add(hook)
 }
 
 func newLogrus() *logrus.Logger {
 	now := time.Now()
-	logFilePath := ""
+	var logFilePath string
 	if dir, err := os.Getwd(); err == nil {
 		logFilePath = dir + "/" + config.Path
 	}
@@ -38,16 +61,20 @@ func newLogrus() *logrus.Logger {
 	fileName := path.Join(logFilePath, logFileName)
 	if _, err := os.Stat(fileName); err != nil {
 		if _, err := os.Create(fileName); err != nil {
-			fmt.Println(err.Error())
+			panic(fmt.Errorf("log conf err: create log file '%s' error: %v", fileName, err))
 		}
 	}
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
-		fmt.Println("err", err)
+		panic(fmt.Errorf("log conf err: open log file '%s' error: %v", fileName, err))
 	}
-	writers := []io.Writer{
-		src,
-		os.Stdout}
+	var writers []io.Writer
+	if config.Stdout {
+		writers = append(writers, os.Stdout)
+	}
+	if config.FileOut {
+		writers = append(writers, src)
+	}
 	// 同时写文件和控制台打印
 	fileAndStdoutWriter := io.MultiWriter(writers...)
 
