@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,21 +11,37 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
+const (
+	// EncodeJson 请求数据类型为json
+	EncodeJson = "_json"
+
+	// EncodeForm 请求数据类型为form
+	EncodeForm = "_form"
+)
+
+// Options http request options
+// URL request url
+// RequestBody 请求体
+// Encode default form
+// Headers headers
+// Cookies cookies
 type Options struct {
 	URL         string
-	Body        map[string]string
-	JsonBody    string
+	RequestBody interface{}
 	ContentType string
+	Encode      string
 	Headers     map[string]string
 	Cookies     map[string]string
 }
 
+// Result http request result
 type Result struct {
 	HttpCode     int
 	ResponseBody []byte
 }
 
-func HttpPost(opt *Options) (*Result, error) {
+// Post http post request
+func Post(opt *Options) (*Result, error) {
 	data, err := opt.getData()
 	if err != nil {
 		return nil, err
@@ -49,7 +66,7 @@ func HttpPost(opt *Options) (*Result, error) {
 	return res, nil
 }
 
-func HttpGet(opt *Options) (*Result, error) {
+func Get(opt *Options) (*Result, error) {
 	request, err := http.NewRequest(httpGet, opt.URL, nil)
 	client := http.Client{}
 	log.Printf("get request:%v", opt)
@@ -67,19 +84,40 @@ func HttpGet(opt *Options) (*Result, error) {
 
 func (o *Options) getData() (string, error) {
 	var data string
-	if len(o.Body) > 0 {
-		values := url.Values{}
-		for k, v := range o.Body {
-			values.Set(k, v)
-		}
-		data = values.Encode()
-	} else if len(o.JsonBody) > 0 {
-		var err error
-		data, err = jsoniter.MarshalToString(o.JsonBody)
+	var err error
+	switch o.Encode {
+	case EncodeJson:
+		data, err = jsoniter.MarshalToString(o.RequestBody)
 		if err != nil {
 			return "", err
 		}
+	case EncodeForm:
+		fallthrough
+	default:
+		value := &url.Values{}
+		if formData, ok := o.RequestBody.(map[string]string); ok {
+			for k, v := range formData {
+				value.Set(k, v)
+			}
+		} else if formData, ok := o.RequestBody.(map[string]interface{}); ok {
+			for k, v := range formData {
+				switch v.(type) {
+				case string:
+					value.Set(k, v.(string))
+				default:
+					vStr, err := jsoniter.MarshalToString(v)
+					if err != nil {
+						return data, err
+					}
+					value.Set(k, vStr)
+				}
+			}
+		} else {
+			return data, errors.New("get requestBody error")
+		}
+		data = value.Encode()
 	}
+
 	return data, nil
 }
 
@@ -101,12 +139,13 @@ func (o *Options) getContentType() {
 	if len(o.ContentType) != 0 {
 		return
 	}
-	if len(o.Body) > 0 {
-		o.ContentType = contentTypeForm
-		return
-	}
-	if len(o.JsonBody) > 0 {
+	switch o.Encode {
+	case EncodeJson:
 		o.ContentType = contentTypeJson
+	case EncodeForm:
+		fallthrough
+	default:
+		o.ContentType = contentTypeForm
 	}
 }
 
