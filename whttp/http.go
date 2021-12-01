@@ -1,12 +1,15 @@
-package http
+package whttp
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/weirwei/golib/wutil"
 
 	jsoniter "github.com/json-iterator/go"
 )
@@ -52,12 +55,12 @@ func Post(opt *Options) (*Result, error) {
 	}
 	opt.makeRequest(request)
 	client := http.Client{}
-	log.Printf("post request:%v", opt)
+	log.Printf("post request:%v", wutil.ToJson(opt))
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("post response:%v", response)
+	log.Printf("post response:%v", wutil.ToJson(response))
 	res, err := responseToResult(response)
 	if err != nil {
 		return nil, err
@@ -68,17 +71,22 @@ func Post(opt *Options) (*Result, error) {
 
 // Get http get request
 func Get(opt *Options) (*Result, error) {
-	request, err := http.NewRequest(httpGet, opt.URL, nil)
+	data, err := opt.getUrlData()
+	if err != nil {
+		return nil, err
+	}
+	path := fmt.Sprintf("%s?%s", opt.URL, data)
+	request, err := http.NewRequest(httpGet, path, nil)
 	if err != nil {
 		return nil, err
 	}
 	client := http.Client{}
-	log.Printf("get request:%v", opt)
+	log.Printf("get request:%v", wutil.ToJson(opt))
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("get response:%v", response)
+	log.Printf("get response:%v", wutil.ToJson(response))
 	res, err := responseToResult(response)
 	if err != nil {
 		return nil, err
@@ -98,30 +106,38 @@ func (o *Options) getData() (string, error) {
 	case EncodeForm:
 		fallthrough
 	default:
-		value := &url.Values{}
-		if formData, ok := o.RequestBody.(map[string]string); ok {
-			for k, v := range formData {
-				value.Set(k, v)
-			}
-		} else if formData, ok := o.RequestBody.(map[string]interface{}); ok {
-			for k, v := range formData {
-				switch v := v.(type) {
-				case string:
-					value.Set(k, v)
-				default:
-					vStr, err := jsoniter.MarshalToString(v)
-					if err != nil {
-						return data, err
-					}
-					value.Set(k, vStr)
-				}
-			}
-		} else {
-			return data, errors.New("get requestBody error")
+		data, err = o.getUrlData()
+		if err != nil {
+			return "", err
 		}
-		data = value.Encode()
 	}
 
+	return data, nil
+}
+
+func (o *Options) getUrlData() (data string, err error) {
+	value := &url.Values{}
+	if formData, ok := o.RequestBody.(map[string]string); ok {
+		for k, v := range formData {
+			value.Set(k, v)
+		}
+	} else if formData, ok := o.RequestBody.(map[string]interface{}); ok {
+		for k, v := range formData {
+			switch v := v.(type) {
+			case string:
+				value.Set(k, v)
+			default:
+				vStr, err := jsoniter.MarshalToString(v)
+				if err != nil {
+					return data, err
+				}
+				value.Set(k, vStr)
+			}
+		}
+	} else {
+		return data, errors.New("get requestBody error")
+	}
+	data = value.Encode()
 	return data, nil
 }
 

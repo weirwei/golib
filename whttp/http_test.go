@@ -1,4 +1,4 @@
-package http
+package whttp
 
 import (
 	"testing"
@@ -17,6 +17,7 @@ func TestHttpPost(t *testing.T) {
 	options := Options{
 		URL:         "https://e.juejin.cn/resources/github",
 		RequestBody: requestMap,
+		Encode:      EncodeForm,
 	}
 	result, err := Post(&options)
 	assert.Nil(t, err)
@@ -24,8 +25,13 @@ func TestHttpPost(t *testing.T) {
 }
 
 func TestHttpGet(t *testing.T) {
+	requestMap := map[string]interface{}{
+		"code": "utf-8",
+		"q":    "ps5",
+	}
 	options := Options{
-		URL: "https://baidu.com",
+		URL:         "https://suggest.taobao.com/sug",
+		RequestBody: requestMap,
 	}
 	result, err := Get(&options)
 	assert.Nil(t, err)
