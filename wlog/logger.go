@@ -83,20 +83,7 @@ func newLogrus() *logrus.Logger {
 	logger.SetOutput(fileAndStdoutWriter)
 
 	// 设置日志级别
-	switch config.Level {
-	case LevelPanic:
-		logger.SetLevel(logrus.PanicLevel)
-	case LevelFatal:
-		logger.SetLevel(logrus.FatalLevel)
-	case LevelError:
-		logger.SetLevel(logrus.ErrorLevel)
-	case LevelWarn:
-		logger.SetLevel(logrus.WarnLevel)
-	case LevelInfo:
-		logger.SetLevel(logrus.InfoLevel)
-	case LevelDebug:
-		logger.SetLevel(logrus.DebugLevel)
-	}
+	logger.SetLevel(logrus.Level(config.Level))
 
 	// 设置日志格式
 	logger.SetFormatter(config.Formatter)
