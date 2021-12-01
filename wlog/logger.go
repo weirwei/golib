@@ -98,7 +98,7 @@ func newLogrus() *logrus.Logger {
 		logger.SetLevel(logrus.DebugLevel)
 	}
 
-	//设置日志格式
+	// 设置日志格式
 	logger.SetFormatter(config.Formatter)
 	return logger
 }

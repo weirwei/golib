@@ -25,7 +25,7 @@ func TestHttpPost(t *testing.T) {
 
 func TestHttpGet(t *testing.T) {
 	options := Options{
-		URL: "http://baidu.com",
+		URL: "https://baidu.com",
 	}
 	result, err := Get(&options)
 	assert.Nil(t, err)

@@ -66,8 +66,12 @@ func Post(opt *Options) (*Result, error) {
 	return res, nil
 }
 
+// Get http get request
 func Get(opt *Options) (*Result, error) {
 	request, err := http.NewRequest(httpGet, opt.URL, nil)
+	if err != nil {
+		return nil, err
+	}
 	client := http.Client{}
 	log.Printf("get request:%v", opt)
 	response, err := client.Do(request)
@@ -101,9 +105,9 @@ func (o *Options) getData() (string, error) {
 			}
 		} else if formData, ok := o.RequestBody.(map[string]interface{}); ok {
 			for k, v := range formData {
-				switch v.(type) {
+				switch v := v.(type) {
 				case string:
-					value.Set(k, v.(string))
+					value.Set(k, v)
 				default:
 					vStr, err := jsoniter.MarshalToString(v)
 					if err != nil {
