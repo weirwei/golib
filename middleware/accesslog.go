@@ -8,7 +8,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/weirwei/golib/wutil"
+	"github.com/weirwei/ikit/iutil"
 
 	"github.com/gin-gonic/gin"
 	"github.com/weirwei/golib/wlog"
@@ -67,7 +67,7 @@ func getReqBody(ctx *gin.Context) string {
 		if err != nil {
 			return ""
 		}
-		res = wutil.BytesString(requestBody)
+		res = iutil.BytesString(requestBody)
 		// 写回Request.Body
 		ctx.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 	}
